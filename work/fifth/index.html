@@ -100,23 +100,21 @@
 
       $('.select').change(function(){
         var option = $(this).val();//
-        var category = $('li').data('category-type');
         console.log(option);
-        console.log(category);
         $('.list li').each(function(){
-          console.log($(this));
-          
+          var category = $(this).data('category-type');//
+          console.log(category);
           // 全て非表示にする(初期化)
-          $(this).hide();
+          $('.list li').hide();
           
           // 'all'選択
-          if('.select option' == "all"){
+          if(option == category){
             // 表示する
-            $('.list li').show();
+            $(this).show();
 
           // category一致
-          }else if(option = category){
-            $(this).show();
+          }else if(option == "all"){
+            $('.list li').show();
           }
           });
       });
