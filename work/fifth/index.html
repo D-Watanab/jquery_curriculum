@@ -103,13 +103,14 @@
          var option = $(this).val();
          // allじゃなかった場合にeach処理(繰り返し)→css=cssで表示
          // allはeachのそとで記述(繰り返す処理がないため)
-         if (option == 'all') {
+         if (option === 'all') {
           $('.list li').show();
          } else {
           $('.list li').each(function(index, element) {
             var category = $(element).data('category-type');
             //  console.log(category);
             // 'category'一致
+            // ===データ一致
             if(option === category){
             // 表示する
             $(element).show();

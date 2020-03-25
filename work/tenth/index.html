@@ -68,23 +68,62 @@
       //
       //
       //
-      $(function(){
-        $.ajax({
-          url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
-          type: 'GET',
-          datatype: 'json',
-          data: {
-          // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
-          applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
-          booksGenreId: '001'
-        },
-        }).done(function(data) {
-          // この中にデータ取得後の動きを記述していきます。
-          
-          
-          console.log(data);
-        });
-      })
+      $(function() {
+        $('#js-search-button').on('click', function() {
+          var srchword =$('#js-search-word').val();
+          console.log(srchword);
+          $.ajax({
+            url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
+            type: 'GET',
+            datatype: 'json',
+            data: {
+            // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
+            applicationId: '1019399324990976605', // (今回はこのIDを使用してください) ※IDは他サイト等には絶対に転載しないでください
+            booksGenreId: '001', 
+            page: '1', 
+            hits: '20',
+            keyword: srchword,
+            }
+          }).done(function(data) {
+            // この中にデータ取得後の動きを記述していきます。
+            console.log(data.hits);
+
+           //通信に成功した場合
+           // 検索結果の表示（０件or成功）
+           if(data.hits === 0){
+             $('.lists').after('<div class="comment"></div>')
+             comment = $('.comment');
+             comment.html('<p class="message">検索結果が０件でした。<br>キーワードを変えて検索して下さい。</p>');
+           } else {
+             console.log(data.Items)
+             $.each(data.Items, function(index, item) {
+               var book = '<li class="lists__item">' + '<div class="lists__item__inner">' + '<a href="' +
+               item.Item.itemUrl + '"class="lists__item__link" target="_blank">' + '<img src="' + item.Item
+               .mediumImageUrl + '" class="lists__item__img" alt="' + item.Item.title + '">' +
+               '<p class="lists__item__detail">作品名：' + item.Item.title + '</p>' +
+               '<p class="lists__item__detail">作者　：' + item.Item.author + '</p>' +
+               '<p class="lists__item__detail">出版社：' + item.Item.publisherName + '</p>' + '</a>' +
+               '</div>' + '</li>';
+               $('.lists').prepend(book);
+              });
+           }
+
+          //  何かしらのエラーが出た場合
+        }).fail(function (index, data) {
+          //  文字数不足
+          if(0 <= srchword <2) {
+            $('.lists').after('<div class="empty"></div>')
+            empty = $('.empty');
+            empty.html('<p class="message">文字が入力されていないか短すぎます。<br>文字を入力してください。</p>');
+
+          //通信に失敗した場合
+          } else {
+            $('.lists').after('<div class="datacoment"></div>')
+            dataerr = $('.datacoment');
+            dataerr.html('<p class="message">通信エラー<br>接続を確認してください。</p>');
+          }})
+        })
+      });
      
     </script>
   </body>
