@@ -70,10 +70,16 @@
       //
       $(function() {
         var pageNum = 0;
+        var prevword = '';
         $('#js-search-button').on('click', function() {
           var srchword =$('#js-search-word').val();
           console.log(srchword);
           pageNum = pageNum + 1;
+          if(prevword !== srchword){
+            $('.lists').empty();
+            pageNum = 1;
+            prevword = srchword;
+          };
           $.ajax({
             url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
             type: 'GET',
@@ -89,33 +95,41 @@
             }
           }).done(function(data) {
             // この中にデータ取得後の動きを記述していきます。
+            console.log(pageNum);
             console.log(data.hits);
+            $(".message").remove();
 
            //通信に成功した場合
            // 検索結果の表示（０件or成功）
-           $(".message").remove();
-           var book = '';
            if(data.hits === 0){
              $('.search').after('<div class="message">検索結果が０件でした。<br>別のキーワードで検索して下さい。</div>')
             } else {
               console.log(data.Items)
+              // $('.message').css('display','none');
+              var book = '';
              $.each(data.Items, function(index, item) {
-               book = '<li class="lists__item">' + '<div class="lists__item__inner">' + '<a href="' +
-               item.Item.itemUrl + '"class="lists__item__link" target="_blank">' + '<img src="' + item.Item
-               .mediumImageUrl + '" class="lists__item__img" alt="' + item.Item.title + '">' +
-               '<p class="lists__item__detail">作品名：' + item.Item.title + '</p>' +
-               '<p class="lists__item__detail">作者　：' + item.Item.author + '</p>' +
-               '<p class="lists__item__detail">出版社：' + item.Item.publisherName + '</p>' + '</a>' +
-               '</div>' + '</li>';
-               $('.lists').append(book);
-               
+              //  インデントつけるhtml方式
+               book += 
+                '<li class="lists__item">' + 
+                  '<div class="lists__item__inner">' + 
+                    '<a href="' + item.Item.itemUrl + '"class="lists__item__link" target="_blank">' + 
+                      '<img src="' + item.Item.mediumImageUrl + '" class="lists__item__img" alt="' + item.Item.title + '">' +
+                      '<p class="lists__item__detail">作品名：' + item.Item.title + '</p>' +
+                      '<p class="lists__item__detail">作者　：' + item.Item.author + '</p>' +
+                      '<p class="lists__item__detail">出版社：' + item.Item.publisherName + '</p>' + 
+                    '</a>' +
+                  '</div>' + 
+                '</li>';
               });
-           }
+              $('.lists').prepend(book);
+            }
 
           //  何かしらのエラーが出た場合
         }).fail(function (data) {
           //全件削除
-
+          // 文字がないとき、文字が絡む時、半角１文字の時、ボタン連打された時(リクエスト送りすぎのエラー)
+          // 最後にelseで「予期せぬエラー」
+          
           //  文字数不足
           console.log(data)
           $(".message").remove();
@@ -126,6 +140,11 @@
           } else if(data.statusText === 'error'){
             $('.lists').after('<div class="message">通信エラー<br>接続を確認してください。</div>')
             console.log(data.statusText)
+          } else if(data.statusText === '429') {
+            $('.lists').after('<div class="message">エラー<br>検索ボタンを連打しないでください。</div>')
+            console.log(data.statusText)
+          } else {
+            $('.lists').after('<div class="message">予期せぬエラーが発生しました。</div>')
           }})
         })
       });
