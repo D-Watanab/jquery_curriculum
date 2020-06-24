@@ -108,7 +108,6 @@
               // $('.message').css('display','none');
               var book = '';
              $.each(data.Items, function(index, item) {
-              //  インデントつけるhtml方式
                book += 
                 '<li class="lists__item">' + 
                   '<div class="lists__item__inner">' + 
@@ -132,19 +131,24 @@
           
           //  文字数不足
           console.log(data)
+
           $(".message").remove();
+          $('.lists').empty();
           if(data.statusText === 'Bad Request') {
             $('.search').after('<div class="message">文字が入力されていないか短すぎます。<br>文字を入力してください。</div>')
             console.log(data.statusText)
           //通信に失敗した場合
           } else if(data.statusText === 'error'){
             $('.lists').after('<div class="message">通信エラー<br>接続を確認してください。</div>')
+            pageNum = 0;
             console.log(data.statusText)
           } else if(data.statusText === '429') {
             $('.lists').after('<div class="message">エラー<br>検索ボタンを連打しないでください。</div>')
+            pageNum = 0;
             console.log(data.statusText)
           } else {
             $('.lists').after('<div class="message">予期せぬエラーが発生しました。</div>')
+            pageNum = 0;
           }})
         })
       });
