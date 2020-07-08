@@ -94,13 +94,13 @@
             keyword: srchword,
             }
           }).done(function(data) {
-            // この中にデータ取得後の動きを記述していきます。
-            console.log(pageNum);
-            console.log(data.hits);
-            $(".message").remove();
+              // この中にデータ取得後の動きを記述していきます。
+              console.log(pageNum);
+              console.log(data.hits);
+              $(".message").remove();
+              //通信に成功した場合
+              // 検索結果の表示（０件or成功）
 
-           //通信に成功した場合
-           // 検索結果の表示（０件or成功）
            if(data.hits === 0){
              $('.search').after('<div class="message">検索結果が０件でした。<br>別のキーワードで検索して下さい。</div>')
             } else {
@@ -124,32 +124,72 @@
             }
 
           //  何かしらのエラーが出た場合
-        }).fail(function (data) {
-          //全件削除
-          // 文字がないとき、文字が絡む時、半角１文字の時、ボタン連打された時(リクエスト送りすぎのエラー)
-          // 最後にelseで「予期せぬエラー」
-          
-          //  文字数不足
-          console.log(data)
+          }).fail(function (data) {
+            //全件削除
+            // 最後にelseで「予期せぬエラー」
+            // 関数化して１行で呼び出せるように(名前も決める)
+            function letError() {
 
-          $(".message").remove();
-          $('.lists').empty();
-          if(data.statusText === 'Bad Request') {
-            $('.search').after('<div class="message">文字が入力されていないか短すぎます。<br>文字を入力してください。</div>')
-            console.log(data.statusText)
-          //通信に失敗した場合
-          } else if(data.statusText === 'error'){
-            $('.lists').after('<div class="message">通信エラー<br>接続を確認してください。</div>')
-            pageNum = 0;
-            console.log(data.statusText)
-          } else if(data.statusText === '429') {
-            $('.lists').after('<div class="message">エラー<br>検索ボタンを連打しないでください。</div>')
-            pageNum = 0;
-            console.log(data.statusText)
-          } else {
-            $('.lists').after('<div class="message">予期せぬエラーが発生しました。</div>')
-            pageNum = 0;
-          }})
+              $('.lists').after('<div class="message">文字が入力されていないか短すぎます。<br>文字を入力してください。</div>');
+
+            }
+
+            function comError() {
+
+              $('.lists').after('<div class="message">通信エラー<br>接続を確認してください。</div>');
+
+            }
+
+            function repError() {
+
+              $('.lists').after('<div class="message">エラー<br>検索ボタンを連打しないでください。</div>');
+
+            }
+
+            function unknownError() {
+
+              $('.lists').after('<div class="message">予期せぬエラーが発生しました。</div>');
+
+            }
+            
+            console.log(data)
+
+            $(".message").remove();
+
+            $('.lists').empty();
+              pageNum = 0;
+              console.log(data.status)
+            // 予めエラー文作成(var宣言)関数内では呼び出しのみ
+            // switch文でelse if を書き換える(elseはデフォルト)
+            switch(data.status){
+
+              case 400 :
+              letError();
+              break;
+              
+              case 0 :
+              comError();
+              break;
+
+              case 429 :
+              repError();
+              break;
+
+              default:
+              unknownError();
+              break;
+            }
+            // if(data.status === 400) {
+            //   letError();
+            // //通信に失敗した場合
+            // } else if(data.status === 0){
+            //   comError();
+            // } else if(data.status === 429) {
+            //   repError();
+            // } else {
+            //   unknownError();
+            // }
+          })
         })
       });
      
