@@ -77,8 +77,8 @@
           console.log(searchWord);
           // pageNum省略方法 =>算術演算子
           pageNum++;
-          function error(reason, solution){
-            $('.search').after('<div class="message">' + reason + '<br>' + solution + '</div>')
+          function error(errorText){
+            $('.search').after('<div class="message">' + errorText + '</div>')
           }
           if(prevWord !== searchWord){
             $('.lists').empty();
@@ -143,19 +143,19 @@
             // switch文でelse if を書き換える(elseはデフォルト)
             switch(data.status) {
               case 400:
-              error('文字が入力されていないか短すぎます。','文字を入力してください。');
+              error('文字が入力されていないか短すぎます。<br>文字を入力してください。');
               break;
               
               case 0:
-              error('通信エラー','接続を確認してください。');
+              error('通信エラー。<br>接続を確認してください。');
               break;
 
               case 429:
-              error('エラー','検索ボタンを連打しないでください。');
+              error('エラー。<br>検索ボタンを連打しないでください。');
               break;
 
               default:
-              error('予期せぬエラーが発生しました。','');
+              error('予期せぬエラーが発生しました。');
               break;
             }
             // if(data.status === 400) {
