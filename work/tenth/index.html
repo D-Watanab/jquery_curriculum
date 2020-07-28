@@ -70,15 +70,20 @@
       //
       $(function() {
         var pageNum = 0;
-        var prevword = '';
+        var prevWord = '';
+
         $('#js-search-button').on('click', function() {
-          var srchword =$('#js-search-word').val();
-          console.log(srchword);
-          pageNum = pageNum + 1;
-          if(prevword !== srchword){
+          var searchWord = $('#js-search-word').val();
+          console.log(searchWord);
+          // pageNum省略方法 =>算術演算子
+          pageNum++;
+          function error(reason, solution){
+            $('.search').after('<div class="message">' + reason + '<br>' + solution + '</div>')
+          }
+          if(prevWord !== searchWord){
             $('.lists').empty();
             pageNum = 1;
-            prevword = srchword;
+            prevWord = searchWord;
           };
           $.ajax({
             url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
@@ -91,21 +96,20 @@
             page: pageNum, 
             hits: '20',
             sort:'standard',
-            keyword: srchword,
+            keyword: searchWord,
             }
           }).done(function(data) {
               // この中にデータ取得後の動きを記述していきます。
               console.log(pageNum);
               console.log(data.hits);
-              $(".message").remove();
+              $('.message').remove();
               //通信に成功した場合
               // 検索結果の表示（０件or成功）
 
-           if(data.hits === 0){
-             $('.search').after('<div class="message">検索結果が０件でした。<br>別のキーワードで検索して下さい。</div>')
+            if(data.hits === 0){
+              error("検索結果が０件でした。","別のキーワードで検索して下さい。");
             } else {
               console.log(data.Items)
-              // $('.message').css('display','none');
               var book = '';
              $.each(data.Items, function(index, item) {
                book += 
@@ -124,34 +128,10 @@
             }
 
           //  何かしらのエラーが出た場合
-          }).fail(function (data) {
+          }).fail(function(data) {
             //全件削除
-            // 最後にelseで「予期せぬエラー」
-            // 関数化して１行で呼び出せるように(名前も決める)
-            function letError() {
+            // 関数化して１行で呼び出せるように(引数で文章を作り、一つの関数で&一番下で定義,107行目も)
 
-              $('.lists').after('<div class="message">文字が入力されていないか短すぎます。<br>文字を入力してください。</div>');
-
-            }
-
-            function comError() {
-
-              $('.lists').after('<div class="message">通信エラー<br>接続を確認してください。</div>');
-
-            }
-
-            function repError() {
-
-              $('.lists').after('<div class="message">エラー<br>検索ボタンを連打しないでください。</div>');
-
-            }
-
-            function unknownError() {
-
-              $('.lists').after('<div class="message">予期せぬエラーが発生しました。</div>');
-
-            }
-            
             console.log(data)
 
             $(".message").remove();
@@ -161,22 +141,21 @@
               console.log(data.status)
             // 予めエラー文作成(var宣言)関数内では呼び出しのみ
             // switch文でelse if を書き換える(elseはデフォルト)
-            switch(data.status){
-
-              case 400 :
-              letError();
+            switch(data.status) {
+              case 400:
+              error('文字が入力されていないか短すぎます。','文字を入力してください。');
               break;
               
-              case 0 :
-              comError();
+              case 0:
+              error('通信エラー','接続を確認してください。');
               break;
 
-              case 429 :
-              repError();
+              case 429:
+              error('エラー','検索ボタンを連打しないでください。');
               break;
 
               default:
-              unknownError();
+              error('予期せぬエラーが発生しました。','');
               break;
             }
             // if(data.status === 400) {
